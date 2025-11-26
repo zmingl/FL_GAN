@@ -51,7 +51,14 @@ def filter_updates(
         kmeans = KMeans(n_clusters=2, random_state=42, n_init=10)
         labels = kmeans.fit_predict(scores)
         counts = np.bincount(labels)
+        # suppose the cluster with more samples is benign
         benign_label = int(np.argmax(counts))
+        # suppose the cluster with higher mean score is benign
+        # means = []
+        # for k in range(2):
+        #     cluster_scores = scores[labels == k]
+        #     means.append(cluster_scores.mean() if len(cluster_scores) > 0 else -1e9)        
+        # benign_label = int(np.argmax(means))
         for cid, lab in zip(ids, labels):
             if lab == benign_label:
                 accepted.append(cid)

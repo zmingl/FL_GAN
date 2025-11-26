@@ -72,6 +72,15 @@ python main.py --rounds 1 --clients-per-round 2 --num-clients 4 \
 - Default device auto-selects CUDA if available; otherwise CPU.
 - Filtering may reject all clients when synthetic data is weak; tune `g-steps`, `q-per-class`, or filter method/thresholds accordingly.
 
+## execution process
+1. Randomly select a portion of clients
+2. Local training on the client side (Algorithm 2)
+3. Train cGAN using the global model
+4. Generate D_syn
+5. Client models are evaluated on D_syn
+6. FilterUpdates (Algorithm 3)
+7. Accepted clients participate in FedAvg
+8. Update the global model
 
 ## running demo
 ```bash
