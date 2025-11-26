@@ -5,8 +5,6 @@ venv/
 # data
 data/
 
-main.py
-
 # Python cache
 __pycache__/
 *.pyc
