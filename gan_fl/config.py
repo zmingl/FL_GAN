@@ -51,5 +51,14 @@ def build_argparser():
     )
     p.add_argument("--fixed-tau", type=float, default=0.7,
                    help="used when filter-method=fixed")
+    
+    #Gradclustering
+    p.add_argument(
+        "--agg-method",
+        type=str,
+        default="fedavg",
+        choices=["fedavg", "grad_cluster"],
+        help="Aggregation: 'fedavg' or 'grad_cluster' (gradient-based clustering).",
+    )
 
     return p

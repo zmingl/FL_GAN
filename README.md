@@ -12,6 +12,7 @@ This repo provides a PyTorch reproduction of the main pipeline in:
 - Synthetic validation set `D_syn` for authenticating client updates
 - Four poisoning attacks: Random Noise, Sign Flipping, Label Flipping, Backdoor
 - Threshold-based and clustering-based filtering (Algorithm 3)
+- FedAvg aggregation of accepted clients, with an optional gradient-based client clustering variant
 - Full FL loop (Algorithm 1)
 
 This is a research-oriented reference implementation, not an optimized production system.
@@ -38,6 +39,13 @@ source venv/bin/activate
 python main.py --rounds 4
 ```
 
+To enable gradient-based client clustering instead of plain FedAvg:
+
+```bash
+source venv/bin/activate
+python main.py --rounds 4 --agg-method grad_cluster
+```
+
 To speed up debugging, reduce rounds/clients and generator steps:
 
 ```bash
@@ -53,7 +61,9 @@ python main.py --rounds 1 --clients-per-round 2 --num-clients 4 \
 - Local training: `--local-epochs` (10), `--batch-size` (128), `--lr` (0.01), `--dirichlet-alpha` (1.0 = IID, smaller → more non-IID)
 - Attacks: `--malicious-frac` (0.2), `--attack-type` {none,rn,sf,lf,bk}, backdoor knobs `--backdoor-source/target/trigger-value/fraction`
 - cGAN: `--noise-dim` (100), `--g-steps` (200), `--g-batch-size` (256), `--q-per-class` (200 per class in `D_syn`)
-- Filtering: `--filter-method` {fixed,adaptive,cluster}, `--fixed-tau` (used when `fixed`)
+- Filtering: `--filter-method` {fixed,adaptive,cluster}, `--fixed-tau` (used when `fixed`)‘
+- Aggregation: `--agg-method` {fedavg,grad_cluster} (default `fedavg`)
+
 
 ## Code map
 
@@ -65,6 +75,7 @@ python main.py --rounds 1 --clients-per-round 2 --num-clients 4 \
 - `gan_fl/gan/trainer.py` — generator training and synthetic data creation
 - `gan_fl/filter/filter_updates.py` — client filtering via synthetic eval or clustering
 - `gan_fl/aggregation/fedavg.py` — FedAvg aggregation of accepted clients
+- `gan_fl/aggregation/grad_cluster.py` — gradient-based client clustering aggregation
 - `gan_fl/utils/common.py` — seeding, device selection, eval helper
 
 ## Notes
@@ -79,7 +90,7 @@ python main.py --rounds 1 --clients-per-round 2 --num-clients 4 \
 4. Generate D_syn
 5. Client models are evaluated on D_syn
 6. FilterUpdates (Algorithm 3)
-7. Accepted clients participate in FedAvg
+7. Accepted clients participate in FedAvg (or gradient-based clustering aggregation)
 8. Update the global model
 
 ## running demo

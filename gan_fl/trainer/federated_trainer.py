@@ -8,6 +8,9 @@ from gan_fl.attacks import ClientConfig, FedClient
 from gan_fl.gan import train_generator_cgan, generate_synthetic_dataset
 from gan_fl.filter import filter_updates
 from gan_fl.aggregation import fedavg_aggregate
+from gan_fl.aggregation.grad_cluster import gradient_cluster_aggregate
+
+
 
 
 def run_federated_training(args):
@@ -110,11 +113,24 @@ def run_federated_training(args):
         print("Accepted clients:", accepted_ids)
 
         # aggregate
-        global_model = fedavg_aggregate(
-            global_model=global_model,
-            client_models=client_models,
-            accepted_ids=accepted_ids,
-        )
+        # aggregate
+        if args.agg_method == "grad_cluster":
+            # Gradient-based clustering + aggregation
+            global_model = gradient_cluster_aggregate(
+                global_model=global_model,
+                client_models=client_models,
+                accepted_ids=accepted_ids,
+                n_clusters=2,
+                random_state=getattr(args, "seed", 0),
+            )
+        else:
+            # Standard FedAvg
+            global_model = fedavg_aggregate(
+                global_model=global_model,
+                client_models=client_models,
+                accepted_ids=accepted_ids,
+            )
+
 
         # eval
         test_acc = eval_global_model(global_model, test_loader, device)
